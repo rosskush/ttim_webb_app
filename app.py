@@ -1,5 +1,6 @@
 import dash
-import dash_core_components as dcc
+# import dash_core_components as dcc
+from dash import dcc
 # import dash_html_components as html
 from dash import html
 from dash.dependencies import Input, Output, State
@@ -12,6 +13,7 @@ import math
 import matplotlib.pyplot as plt
 from dash.exceptions import PreventUpdate
 import urllib
+import ttim
 
 
 external_stylesheets = ['/assets/main.css']
@@ -638,7 +640,7 @@ app.config.suppress_callback_exceptions = True
     dash.dependencies.Output('aquifer-thickness', 'children'),
     dash.dependencies.Output('instructions','children')],
     [dash.dependencies.Input('time-radio', 'value')])
-def inject_option(option):
+def model_option(option):
     if option == ' Manual data entry':
         return [html.Div(children=[
             html.Label(
@@ -721,7 +723,7 @@ def inject_option(option):
             ),
             dcc.Input(
                 id='tmax',
-                value=10*365.25,
+                value=365.25,
                 type='number',
                 min=0
             ),
@@ -802,8 +804,40 @@ def inject_option(option):
         
         raise PreventUpdate
  
-    
-    
+#CALLBACK: ALL input texts
+@app.callback([
+    dash.dependencies.Output('Qi-output-text', 'children'),
+    dash.dependencies.Output('Qp-output-text', 'children'),
+    dash.dependencies.Output('kd-output-text', 'children'),
+    dash.dependencies.Output('dhdx-output-text', 'children'),
+    dash.dependencies.Output('n-output-text', 'children'),
+    dash.dependencies.Output('B-output-text', 'children'),
+    dash.dependencies.Output('ti-output-text', 'children'),
+    dash.dependencies.Output('td-output-text', 'children'),
+    dash.dependencies.Output('tp-output-text', 'children')],
+              
+    [dash.dependencies.Input('injection-rate', 'value'),
+    dash.dependencies.Input('pumping-rate', 'value'),
+    dash.dependencies.Input('hydraulic-conductivity', 'value'),
+    dash.dependencies.Input('hydraulic-gradient', 'value'),
+    dash.dependencies.Input('porosity', 'value'),
+    dash.dependencies.Input('aquifer-thickness', 'value'),
+    dash.dependencies.Input('time-radio', 'value'),
+    dash.dependencies.Input('injection-time', 'value'),
+    dash.dependencies.Input('delay-time', 'value'),
+    dash.dependencies.Input('pumping-time', 'value')])
+
+def callback_a(nlay,hk,Saq,thk,tmax,variable_option,v7,v8,v9,v10):
+    # if variable_option ==' Manual data entry':
+    if nlay == 1:
+        ml = ttim.ModelMaq(kaq=hk, z=thx, Saq=Saq, tmin=1e-5, tmax=tmax)
+        ml.solve()
+        h = ml.head(0,0,tmax)
+
+    Qi, Qp, kd, dhdx, n, B, ti, td, tp = [n for n in range(9)]
+    return nlay, Qp, kd, dhdx, n, B, ti, td, tp
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)

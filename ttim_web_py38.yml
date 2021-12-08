@@ -9,3 +9,12 @@ dependencies:
   - pip
   - pip:
     - ttim
+    - dash
+    - dash-core-components
+    - dash-daq
+    - dash-html-components
+    - dash-renderer
+    - dash-table
+    - decorator
+    - Flask
+    - Flask-Compress

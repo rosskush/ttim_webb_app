@@ -18,3 +18,4 @@ dependencies:
     - decorator
     - Flask
     - Flask-Compress
+    - plotly

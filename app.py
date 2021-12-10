@@ -1,7 +1,5 @@
 import dash
-# import dash_core_components as dcc
 from dash import dcc
-# import dash_html_components as html
 from dash import html
 from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
@@ -48,7 +46,7 @@ tab_selected_style = {
     'padding': '6px'
 }
 
-app.title = 'Texas ASR'
+app.title = 'TTim on the Web'
 
 
 
@@ -82,7 +80,7 @@ app.layout =html.Div(children=[
         #app info
         html.Div(children=[
             html.Div(children=[
-                html.H2('simple ttim Applet'),
+                html.H2('Simple TTim Applet'),
                 ],
                 ),
             html.Div([
@@ -193,42 +191,42 @@ def render_content(tab):
                 html.Div(children=[       
                     html.H5('Operational Parameters:'),
                     html.Div(
-                        id='injection-rate',
+                        id='nlay',
                         style={'width': '90%','textAlign': 'left'}
                         ),
                     html.Div(
-                        id='pumping-rate',
+                        id='tmax',
                         style={'width': '90%','textAlign': 'left'}
                         ),
                        
                     html.Div(
-                        id='injection-time',
-                        style={'width': '90%','textAlign': 'left'}
-                        ),
-                    html.Div(
-                        id='delay-time',
+                        id='nwells',
                         style={'width': '90%','textAlign': 'left'}
                         ),
                     html.Div(
                         id='pumping-time',
                         style={'width': '90%','textAlign': 'left'}
                         ),
-                    html.Div(id='tp-container',
-                        children=[html.Div(
-                            [dcc.Slider(
-                                id='tp-num-points',
-                                min=5,
-                                max=25,
-                                step=1,
-                                value=10,
-                                updatemode='drag'
-                            )
-                            ],
-                        style={'width': '20%'}
-                        ),        
-                        html.Div(id='tp-points-text'),
-                    ],
-                    ),
+                    html.Div(
+                        id='pumping-rate',
+                        style={'width': '90%','textAlign': 'left'}
+                        ),
+                    # html.Div(id='tp-container',
+                    #     children=[html.Div(
+                    #         [dcc.Slider(
+                    #             id='tp-num-points',
+                    #             min=5,
+                    #             max=25,
+                    #             step=1,
+                    #             value=10,
+                    #             updatemode='drag'
+                    #         )
+                    #         ],
+                    #     style={'width': '20%'}
+                    #     ),        
+                    #     html.Div(id='tp-points-text'),
+                    # ],
+                    # ),
                 ],style={'width': '50%','display': 'inline-block','textAlign': 'left', 'color': colors['text'],}
                 ),
                 #physical parameters
@@ -241,7 +239,7 @@ def render_content(tab):
                         style={'width': '90%','textAlign': 'left'}
                         ),
                     html.Div(
-                        id='hydraulic-gradient',
+                        id='specific-storage',
                         style={'width': '90%','textAlign': 'left'}
                         ),
                     html.Div(
@@ -629,13 +627,13 @@ def render_content(tab):
 app.config.suppress_callback_exceptions = True 
 #CALLBACK: output time-radio for injection
 @app.callback([
-    dash.dependencies.Output('injection-time', 'children'),
-    dash.dependencies.Output('delay-time', 'children'),
+    dash.dependencies.Output('nwells', 'children'),
     dash.dependencies.Output('pumping-time', 'children'),
-    dash.dependencies.Output('injection-rate', 'children'),
     dash.dependencies.Output('pumping-rate', 'children'),
+    dash.dependencies.Output('nlay', 'children'),
+    dash.dependencies.Output('tmax', 'children'),
     dash.dependencies.Output('hydraulic-conductivity', 'children'),
-    dash.dependencies.Output('hydraulic-gradient', 'children'),
+    dash.dependencies.Output('specific-storage', 'children'),
     dash.dependencies.Output('porosity', 'children'),
     dash.dependencies.Output('aquifer-thickness', 'children'),
     dash.dependencies.Output('instructions','children')],
@@ -647,16 +645,19 @@ def model_option(option):
                 dcc.Markdown(
                     dangerously_allow_html=True,
                     children=dedent(
-                        'Injection Time  (t<sub>i</sub>), days'),
+                        'Number of Pumping Wells'),
                 ),  
                 style={'fontWeight': 'bold'}
             ),
             dcc.Input(
-                id='injection-time-intermediate',
-                value='30, 60, 90',
-                type='text'
+                id='nwells',
+                # value='30, 60, 90',
+                # type='text'
+                value=1,
+                type='number',
+                min=0
             ),
-            html.Div(id='ti-output-text'),
+            html.Div(id='nwells-output-text'),
         ]
         ),
         html.Div(children=[
@@ -664,16 +665,16 @@ def model_option(option):
                 dcc.Markdown(
                     dangerously_allow_html=True,
                     children=dedent(
-                        'Delay Time (t<sub>d</sub>), days'),
+                        'Pump Time (t<sub>p</sub>), days'),
                 ),
                 style={'fontWeight': 'bold'}
             ),
             dcc.Input(
-                id='delay-time-intermediate',
-                value='300, 300, 300',
+                id='pumping-time',
+                value='30, 60, 90',
                 type='text'
             ),
-            html.Div(id='td-output-text')
+            html.Div(id='tp-output-text')
         ]
         ),
         html.Div(children=[
@@ -681,15 +682,15 @@ def model_option(option):
                 dcc.Markdown(
                     dangerously_allow_html=True,
                     children=dedent(
-                        'Pumping Time (t<sub>p</sub>), days'),
+                        'Pumping Rate (Q<sub>p</sub>), gpm'),
                 ),
                 style={'fontWeight': 'bold'}),
             dcc.Input(
-                id='pumping-time-intermediate',
-                value='10, 20, 30, 60, 90, 120',
+                id='pumping-rate',
+                value='0, 1000, 3000',
                 type='text'
             ),
-            html.Div(id='tp-output-text')
+            html.Div(id='qp-output-text')
         ],    
         ),
         #injection rate
@@ -708,7 +709,7 @@ def model_option(option):
                 type='number',
                 min=0
             ),
-            html.Div(id='Qi-output-text')
+            html.Div(id='nlay-output-text')
         ],
         ),
         #pumping rate
@@ -727,7 +728,7 @@ def model_option(option):
                 type='number',
                 min=0
             ),
-            html.Div(id='Qp-output-text')
+            html.Div(id='tmax-output-text')
         ],
         ),
         #hydraulic conductivity
@@ -739,7 +740,7 @@ def model_option(option):
                 style={'fontWeight': 'bold'}
             ),
             dcc.Input(
-                id='hydraulic-conductivity-intermediate',                        
+                id='hydraulic-conductivity',                        
                 value=20,
                 type='number',
                 min=0
@@ -749,15 +750,15 @@ def model_option(option):
         ),
         #hydraulic gradient
         html.Div(children=[
-            html.Label(dcc.Markdown('Hydraulic Gradient (dh/dx), ft/ft'),    
+            html.Label(dcc.Markdown('Specific-Storage, 1/ft'),    
                 style={'fontWeight': 'bold'}),
             dcc.Input(
-                id='hydraulic-gradient-intermediate',
-                value=0.001,
+                id='specific-storage',
+                value=0.0001,
                 type='number',
                 min=0
             ),
-            html.Div(id='dhdx-output-text')
+            html.Div(id='specific-storage-output-text')
         ],
         ),
         #porosity
@@ -780,7 +781,7 @@ def model_option(option):
             html.Label(dcc.Markdown('Aquifer Thickness (B), ft'),    
                 style={'fontWeight': 'bold'}),
             dcc.Input(
-                id='aquifer-thickness-intermediate',
+                id='aquifer-thickness',
                 value=100,
                 type='number',
                 min=0
@@ -806,33 +807,56 @@ def model_option(option):
  
 #CALLBACK: ALL input texts
 @app.callback([
-    dash.dependencies.Output('Qi-output-text', 'children'),
-    dash.dependencies.Output('Qp-output-text', 'children'),
+    dash.dependencies.Output('nlay-output-text', 'children'),
     dash.dependencies.Output('kd-output-text', 'children'),
-    dash.dependencies.Output('dhdx-output-text', 'children'),
-    dash.dependencies.Output('n-output-text', 'children'),
+    dash.dependencies.Output('specific-storage-output-text', 'children'),
     dash.dependencies.Output('B-output-text', 'children'),
-    dash.dependencies.Output('ti-output-text', 'children'),
-    dash.dependencies.Output('td-output-text', 'children'),
+    dash.dependencies.Output('qp-output-text', 'children'),
+    dash.dependencies.Output('n-output-text', 'children'),
+    dash.dependencies.Output('nwells-output-text', 'children'),
+    dash.dependencies.Output('tmax-output-text', 'children'),
     dash.dependencies.Output('tp-output-text', 'children')],
               
-    [dash.dependencies.Input('injection-rate', 'value'),
-    dash.dependencies.Input('pumping-rate', 'value'),
+    [dash.dependencies.Input('nlay', 'value'),
     dash.dependencies.Input('hydraulic-conductivity', 'value'),
-    dash.dependencies.Input('hydraulic-gradient', 'value'),
-    dash.dependencies.Input('porosity', 'value'),
+    dash.dependencies.Input('specific-storage', 'value'),
     dash.dependencies.Input('aquifer-thickness', 'value'),
+    dash.dependencies.Input('tmax', 'value'),
+    dash.dependencies.Input('porosity', 'value'),
     dash.dependencies.Input('time-radio', 'value'),
-    dash.dependencies.Input('injection-time', 'value'),
-    dash.dependencies.Input('delay-time', 'value'),
-    dash.dependencies.Input('pumping-time', 'value')])
+    dash.dependencies.Input('nwells', 'value'),
+    dash.dependencies.Input('pumping-time', 'value'),
+    dash.dependencies.Input('pumping-rate', 'value')])
 
-def callback_a(nlay,hk,Saq,thk,tmax,variable_option,v7,v8,v9,v10):
+def callback_a(nlay,hk,Saq,thk,tmax,variable_option,v7,nwells,pt,Qs):
+    # this will be the function that converts the web inputs into inputs for the ttim model
     # if variable_option ==' Manual data entry':
+    if nwells == 1:
+        ptimes = [float(v) for v in pt.split(',')]
+        Qgpm = [float(v) for v in Qs.split(',')]
+
+        tsandQ_dict = {}
+        tsandQ = []
+        for pi, ptime in enumerate(ptimes):
+            tsandQ.append((ptime,Qgpm[pi])) # todo convert to cfd
+        tsandQ_dict[0] = tsandQ
+
     if nlay == 1:
-        ml = ttim.ModelMaq(kaq=hk, z=thx, Saq=Saq, tmin=1e-5, tmax=tmax)
+        # nwells = int(nwells) + 'hi'
+
+        # float(Qs)
+        tmax = float(tmax)
+        hk = float(hk)
+        z = [float(thk),0]
+        ml = ttim.ModelMaq(kaq=hk, z=z, Saq=Saq, tmin=1e-5, tmax=tmax)
+
+        for w in range(nwells):
+            tsandQ = tsandQ_dict[0]
+            w = ttim.Well(ml, xw=0, yw=0, rw=0.1, tsandQ=tsandQ, layers=0)
+
         ml.solve()
-        h = ml.head(0,0,tmax)
+        h = ml.head(0,0,np.arange(0,tmax,30))
+        print(h)
 
     Qi, Qp, kd, dhdx, n, B, ti, td, tp = [n for n in range(9)]
     return nlay, Qp, kd, dhdx, n, B, ti, td, tp

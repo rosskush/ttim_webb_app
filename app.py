@@ -855,7 +855,7 @@ def callback_a(nlay,hk,Saq,thk,tmax,variable_option,v7,nwells,pt,Qs):
             w = ttim.Well(ml, xw=0, yw=0, rw=0.1, tsandQ=tsandQ, layers=0)
 
         ml.solve()
-        h = ml.head(0,0,np.arange(0,tmax,30))
+        h = ml.head(0,0,np.arange(1e-5,tmax,30))
         print(h)
 
     Qi, Qp, kd, dhdx, n, B, ti, td, tp = [n for n in range(9)]
